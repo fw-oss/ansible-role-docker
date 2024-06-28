@@ -14,6 +14,11 @@ Ansible Version 2.9
 ##################
 
 docker_obsolete_packages:
+  - docker
+  - docker-engine
+  - docker.io
+  - docker-doc
+  - docker-compose
   - docker-compose-v2
   - podman-docker
   - containerd
@@ -23,13 +28,10 @@ docker_necessary_packages:
   - ca-certificates
   - gnupg2
   - grep
-  - gzip
+  - zstd
   - mawk
   - curl
-  - python3-pip
   - software-properties-common
-  - virtualenv
-  - python3-setuptools
   - python3-docker
 
 #########################
@@ -46,10 +48,15 @@ docker_logins: []
 ############################
 
 docker_database_backup_enable: false
-docker_database_backup_path: "/opt/backup"
+docker_database_backup_path: "/opt/docker-database-backup"
 docker_database_backup_cron_name: "run docker database backup"
 docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
-docker_database_backup_cron_hour: "13,21"
+docker_database_backup_cron_hour: "12,21"
+
+docker_database_backup_mysql_regex: "(mariadb|mysql)"
+docker_database_backup_postgres_regex: "(postgres|mattermost-docker-database).*(?<!zammad-backup_1)$"
+docker_database_backup_mongo_regex: "(mongo[^-])"
+docker_database_backup_keep_regex: "7"
 ```
 
 ## Dependencies
