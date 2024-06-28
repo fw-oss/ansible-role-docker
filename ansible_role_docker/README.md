@@ -1,5 +1,4 @@
 # ansible-role-docker
-=========
 
 Installs Docker CE on Hosts, configures the deamon and initates a database backup job 
 

@@ -11,7 +11,7 @@
 - name: Restart docker - cpu cooldown
   listen: Restart docker
   when: docker_restarted
-  ansible.builtin.shell: cat /proc/loadavg | awk -F ' ' '{print $1}'
+  ansible.builtin.shell: set -o pipefail && cat /proc/loadavg | awk -F ' ' '{print $1}'
   register: cpu_load
   until: ((cpu_load.stdout|float)/ ansible_processor_vcpus ) < 0.8
   retries: 10

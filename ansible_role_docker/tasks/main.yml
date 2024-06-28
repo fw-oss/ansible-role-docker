@@ -2,7 +2,7 @@
 # tasks file for ansible_role_docker
 - # See https://docs.docker.com/engine/install/debian/#uninstall-old-versions
   name: Ensure old versions of Docker are not installed.
-  package:
+  ansible.builtin.package:
     name: "{{ docker_obsolete_packages }}"
     state: absent
 
@@ -48,7 +48,7 @@
       - containerd.io
 
 - name: Install docker-buildx-plugin
-  ansible.builtin.apt: 
+  ansible.builtin.apt:
     name: docker-buildx-plugin
   when: docker_install_buildx_plugin | bool
 
@@ -64,10 +64,10 @@
     recurse: true
 
 - name: Configure Docker daemon options.
-  copy:
+  ansible.builtin.copy:
     content: "{{ docker_daemon_options | to_nice_json }}"
     dest: /etc/docker/daemon.json
-    mode: 0644
+    mode: "0644"
   when: docker_daemon_options.keys() | length > 0
   notify: Restart Docker
 
@@ -89,8 +89,7 @@
     name: "{{ ansible_ssh_user }}"
     groups: docker
     append: true
- 
+
 - name: Create docker database backup-job
   ansible.builtin.include_tasks: docker-database-backup.yml
   when: docker_database_backup_job | bool
-  
