@@ -1,0 +1,19 @@
+---
+# handlers file for ansible_role_docker
+- name: Restart docker service
+  listen: Restart docker
+  register: docker_restarted
+  become: true
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
+- name: Restart docker - cpu cooldown
+  listen: Restart docker
+  when: docker_restarted
+  ansible.builtin.shell: cat /proc/loadavg | awk -F ' ' '{print $1}'
+  register: cpu_load
+  until: ((cpu_load.stdout|float)/ ansible_processor_vcpus ) < 0.8
+  retries: 10
+  delay: 30
+  changed_when: false

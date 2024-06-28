@@ -1,0 +1,96 @@
+---
+# tasks file for ansible_role_docker
+- # See https://docs.docker.com/engine/install/debian/#uninstall-old-versions
+  name: Ensure old versions of Docker are not installed.
+  package:
+    name: "{{ docker_obsolete_packages }}"
+    state: absent
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install some prereqs
+  ansible.builtin.apt:
+    name: "{{ docker_necessary_packages }}"
+
+- name: Import Dockers official GPG key
+  ansible.builtin.get_url:
+    dest: /etc/apt/trusted.gpg.d/docker.asc
+    url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+    mode: "0644"
+    force: true
+
+- name: Remove previous docker repository file
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/{{ item }}
+    state: absent
+  loop:
+    - docker-ce.list
+    - docker.list
+
+- name: Set architecture
+  ansible.builtin.set_fact:
+    docker_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
+
+- name: Add docker apt repo
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ docker_arch }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_lsb.codename }} stable"
+    filename: docker-ce
+    state: present
+
+- name: Install docker, docker-cli and containerd.io
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+- name: Install docker-buildx-plugin
+  ansible.builtin.apt: 
+    name: docker-buildx-plugin
+  when: docker_install_buildx_plugin | bool
+
+- name: Install docker-compose-plugin
+  ansible.builtin.apt:
+    name: docker-compose-plugin
+  when: docker_install_compose_plugin | bool
+
+- name: Create /etc/docker directory with parent directories
+  ansible.builtin.file:
+    path: "/etc/docker/"
+    state: directory
+    recurse: true
+
+- name: Configure Docker daemon options.
+  copy:
+    content: "{{ docker_daemon_options | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  when: docker_daemon_options.keys() | length > 0
+  notify: Restart Docker
+
+- name: Flush Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Start and enable docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Login into private registry
+  ansible.builtin.include_tasks: docker-login.yml
+  loop: "{{ docker_logins }}"
+
+- name: Ensure docker users are added to the docker group.
+  ansible.builtin.user:
+    name: "{{ ansible_ssh_user }}"
+    groups: docker
+    append: true
+ 
+- name: Create docker database backup-job
+  ansible.builtin.include_tasks: docker-database-backup.yml
+  when: docker_database_backup_job | bool
+  
