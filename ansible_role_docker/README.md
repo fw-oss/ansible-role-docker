@@ -15,6 +15,11 @@ Ansible Version 2.9
 ##################
 
 docker_obsolete_packages:
+  - docker
+  - docker-engine
+  - docker.io
+  - docker-doc
+  - docker-compose
   - docker-compose-v2
   - podman-docker
   - containerd
@@ -24,13 +29,10 @@ docker_necessary_packages:
   - ca-certificates
   - gnupg2
   - grep
-  - gzip
+  - zstd
   - mawk
   - curl
-  - python3-pip
   - software-properties-common
-  - virtualenv
-  - python3-setuptools
   - python3-docker
 
 #########################
@@ -46,11 +48,11 @@ docker_logins: []
 # Optional database backup #
 ############################
 
-docker_database_backup_job: false
-docker_database_backup_path: "/opt/backup"
+docker_database_backup_enable: false
+docker_database_backup_path: "/opt/docker-database-backup"
 docker_database_backup_cron_name: "run docker database backup"
 docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
-docker_database_backup_cron_hour: "13,21"
+docker_database_backup_cron_hour: "12,21"
 ```
 
 ## Dependencies
@@ -88,8 +90,9 @@ docker_database_backup_cron_hour: "13,21"
         gelf-address: "udp://graylog-target.example.com:12201"
         labels: "{{ ansible_hostname }}"
         tag: "{{ inventory_hostname }}/{%raw%}{{.ImageName}}/{{.Name}}/{{.ID}}{%endraw%}"
-      
-  become: true
+  roles:
+    - role: fw-oss.docker
+      become: true
 ```
 
 ## License
