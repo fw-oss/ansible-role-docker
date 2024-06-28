@@ -45,7 +45,7 @@ docker_logins: []
 # Optional database backup #
 ############################
 
-docker_database_backup_job: false
+docker_database_backup_enable: false
 docker_database_backup_path: "/opt/backup"
 docker_database_backup_cron_name: "run docker database backup"
 docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"

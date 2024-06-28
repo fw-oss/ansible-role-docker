@@ -27,7 +27,6 @@
     path: /etc/apt/sources.list.d/{{ item }}
     state: absent
   loop:
-    - docker-ce.list
     - docker.list
 
 - name: Set architecture
@@ -36,7 +35,7 @@
 
 - name: Add docker apt repo
   ansible.builtin.apt_repository:
-    repo: "deb [arch={{ docker_arch }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_lsb.codename }} stable"
+    repo: "deb [arch={{ docker_arch }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
     filename: docker-ce
     state: present
 
@@ -86,10 +85,11 @@
 
 - name: Ensure docker users are added to the docker group.
   ansible.builtin.user:
-    name: "{{ ansible_ssh_user }}"
+    name: "{{ ansible_user | default(ansible_ssh_user) }}"
     groups: docker
     append: true
+  when: ansible_user is defined or ansible_ssh_user is defined
 
 - name: Create docker database backup-job
   ansible.builtin.include_tasks: docker-database-backup.yml
-  when: docker_database_backup_job | bool
+  when: docker_database_backup_enable | bool
