@@ -63,7 +63,6 @@
     state: directory
     recurse: true
 
-
 - name: Configure Docker daemon options.
   copy:
     content: "{{ docker_daemon_options | to_nice_json }}"
@@ -93,3 +92,5 @@
  
 - name: Create docker database backup-job
   ansible.builtin.include_tasks: docker-database-backup.yml
+  when: docker_database_backup_job | bool
+  

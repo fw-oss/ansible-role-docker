@@ -1,0 +1,33 @@
+galaxy_info:
+  role_name: ansible_role_docker
+  author: Paul Wannemacher
+  description: Installs Docker on Hosts, configures the deamon and sets up a database backup job
+  company: FW-OSS
+
+  issue_tracker_url: https://github.com/fw-oss/ansible-role-docker
+
+  license: MIT
+
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - stretch
+        - buster
+        - bullseye
+        - bookworm
+
+  galaxy_tags:
+    - docker
+    - ubuntu
+    - debian
+
+dependencies: []
