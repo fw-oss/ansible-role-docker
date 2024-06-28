@@ -1,6 +1,6 @@
 # ansible-role-docker
 
-Installs Docker CE on Hosts, configures the deamon and initates a database backup job 
+Installs Docker CE on Hosts, configures the deamon and initates a database backup job.
 
 ## Requirements
 
@@ -61,7 +61,7 @@ docker_database_backup_keep_regex: "7"
 
 ## Dependencies
 
-[Community General Collection](https://galaxy.ansible.com/community/general?sc_cid=701f2000001OH7YAAW) (comes with `ansible`, but not with `ansible-core`)
+[Community General Collection](https://docs.ansible.com/ansible/latest/collections/community/general/index.html) (comes with `ansible`, but not with `ansible-core`)
 
 ## Example Playbook
 
@@ -94,8 +94,9 @@ docker_database_backup_keep_regex: "7"
         gelf-address: "udp://graylog-target.example.com:12201"
         labels: "{{ ansible_hostname }}"
         tag: "{{ inventory_hostname }}/{%raw%}{{.ImageName}}/{{.Name}}/{{.ID}}{%endraw%}"
-      
-  become: true
+  roles:
+    - role: fw-oss.docker
+      become: true
 ```
 
 ## License
