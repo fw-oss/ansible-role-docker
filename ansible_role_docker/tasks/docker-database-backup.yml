@@ -1,0 +1,23 @@
+---
+- name: docker backup | create folder {{ docker_database_backup_path }}
+  file:
+    path: "{{ docker_database_backup_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: docker backup | copy backup script
+  ansible.builtin.template:
+    src: database_docker_backup.sh.j2
+    dest: "{{ docker_database_backup_path }}/docker_database_backup.sh"
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: docker backup | run backup script
+  cron:
+    name: "{{ docker_database_backup_cron_name }}"
+    minute: "{{ docker_database_backup_cron_minute }}"
+    hour: "{{ docker_database_backup_cron_hour }}"
+    job: "{{ docker_database_backup_path }}/docker_database_backup.sh > {{ docker_database_backup_path }}/last_run.txt 2>&1"

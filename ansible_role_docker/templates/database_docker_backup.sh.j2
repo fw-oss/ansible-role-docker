@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# be sure, you have `zstd` installed
+
+
+#####################################
+############## config ###############
+#####################################
+
+MYSQL_REGEX='(mariadb|mysql)'
+POSTGRES_REGEX='(postgres|mattermost-docker-database).*(?<!zammad-backup_1)$'
+MONGO_REGEX='(mongo[^-])'
+KEEP_DAYS=14
+
+
+# get current directory
+CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+#####################################
+########## mariadb / mysql ##########
+#####################################
+
+# get containers running mysql or mariadb images
+CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $MYSQL_REGEX | awk '{print $2}')
+
+for i in $CONTAINERS
+do
+  printf "new container: $i\n"
+  BACKUP_FOLDER=$CURRENT_DIR/backups/$i
+  mkdir -p $BACKUP_FOLDER
+  docker exec $i sh -c 'mysqldump --all-databases --single-transaction -uroot -p"$MYSQL_ROOT_PASSWORD"' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst
+done
+
+
+#####################################
+############## postgres #############
+#####################################
+
+# get containers running postgres images
+CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $POSTGRES_REGEX | awk '{print $2}')
+
+for i in $CONTAINERS
+do
+  printf "new container: $i\n"
+  BACKUP_FOLDER=$CURRENT_DIR/backups/$i
+  mkdir -p $BACKUP_FOLDER
+  docker exec $i sh -c 'pg_dumpall -U "$POSTGRES_USER"' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst
+done
+
+
+#####################################
+############### mongo ###############
+#####################################
+
+# get containers running mongo images
+CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $MONGO_REGEX | awk '{print $2}')
+
+for i in $CONTAINERS
+do
+  printf "new container: $i\n"
+  BACKUP_FOLDER=$CURRENT_DIR/backups/$i
+  mkdir -p $BACKUP_FOLDER
+  docker exec $i sh -c 'mongodump -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --archive' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).archive.zst
+done
+
+# delete backups older than 14 days
+/usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -delete -type f

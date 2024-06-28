@@ -1,0 +1,7 @@
+---
+- name: Login into private registry
+  community.general.docker_login:
+    registry: "{{ item.docker_registry_url }}"
+    username: "{{ item.docker_registry_user }}"
+    password: "{{ item.docker_registry_pass }}"
+    reauthorize: true

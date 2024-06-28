@@ -1,0 +1,33 @@
+---
+# defaults file for ansible_role_docker
+docker_obsolete_packages:
+  - docker
+  - docker-engine
+  - docker.io
+  - docker-doc
+  - docker-compose
+  - docker-compose-v2
+  - podman-docker
+  - containerd
+
+docker_necessary_packages:
+  - apt-transport-https
+  - ca-certificates
+  - gnupg2
+  - grep
+  - gzip
+  - mawk
+  - curl
+  - python3-pip
+  - software-properties-common
+  - virtualenv
+  - python3-setuptools
+  - python3-docker
+
+docker_install_buildx_plugin: true
+docker_install_compose_plugin: true
+
+docker_database_backup_path: "/opt/backup"
+docker_database_backup_cron_name: "run docker database backup"
+docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
+docker_database_backup_cron_hour: "13,21"
