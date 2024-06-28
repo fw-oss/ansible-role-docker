@@ -24,6 +24,9 @@ docker_necessary_packages:
 docker_install_buildx_plugin: true
 docker_install_compose_plugin: true
 
+docker_daemon_options: {}
+docker_logins: []
+
 docker_database_backup_enable: false
 docker_database_backup_path: "/opt/docker-database-backup"
 docker_database_backup_cron_name: "run docker database backup"
