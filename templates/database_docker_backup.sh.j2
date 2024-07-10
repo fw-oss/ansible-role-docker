@@ -22,7 +22,7 @@ CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 #####################################
 
 # get containers running mysql or mariadb images
-CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $MYSQL_REGEX | awk '{print $2}')
+CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | grep -P $MYSQL_REGEX | awk '{print $2}')
 
 for i in $CONTAINERS
 do
@@ -38,7 +38,7 @@ done
 #####################################
 
 # get containers running postgres images
-CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $POSTGRES_REGEX | awk '{print $2}')
+CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | grep -P $POSTGRES_REGEX | awk '{print $2}')
 
 for i in $CONTAINERS
 do
@@ -54,7 +54,7 @@ done
 #####################################
 
 # get containers running mongo images
-CONTAINERS=$(docker ps --format "{{.Image}}\t{{.Names}}" | grep -P $MONGO_REGEX | awk '{print $2}')
+CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | grep -P $MONGO_REGEX | awk '{print $2}')
 
 for i in $CONTAINERS
 do
