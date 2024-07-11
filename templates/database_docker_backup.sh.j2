@@ -3,6 +3,10 @@
 # be sure, you have `zstd` installed
 # original source: https://gist.github.com/tldev-de/28a3ca2f2ba7026ecdbb83ceb75d112d
 
+{% if docker_database_backup_ping | length %}
+# ping monitoring
+curl -fsS -m 10 --retry 5 -o  /dev/null {{ docker_database_backup_ping }}/start
+{% endif %}
 
 #####################################
 ############## config ###############
@@ -66,3 +70,9 @@ done
 
 # delete backups older than 14 days
 /usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -delete -type f
+
+{% if docker_database_backup_ping | length %}
+# ping monitoring
+ping_body=$(tail -n 1 {{ docker_database_backup_path }}/last_run.txt)
+curl -fsS -m 10 --retry 5 -o /dev/null --data-raw "$ping_body" {{ docker_database_backup_ping }}
+{% endif %}
