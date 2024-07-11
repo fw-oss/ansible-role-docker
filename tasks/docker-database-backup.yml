@@ -18,6 +18,8 @@
 - name: Docker backup | run backup script
   ansible.builtin.cron:
     name: "{{ docker_database_backup_cron_name }}"
+    cron_file: "{{ docker_database_backup_cron_file }}"
+    user: root
     minute: "{{ docker_database_backup_cron_minute }}"
     hour: "{{ docker_database_backup_cron_hour }}"
     job: "{{ docker_database_backup_path }}/docker_database_backup.sh > {{ docker_database_backup_path }}/last_run.txt 2>&1"
