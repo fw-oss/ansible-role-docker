@@ -17,7 +17,7 @@ declare -i SUM_OF_BACKUPS=0
 MYSQL_REGEX="{{ docker_database_backup_mysql_regex }}"
 POSTGRES_REGEX="{{ docker_database_backup_postgres_regex }}"
 MONGO_REGEX="{{ docker_database_backup_mongo_regex }}"
-KEEP_DAYS="{{ docker_database_backup_keep_regex }}"
+KEEP_DAYS="{{ docker_database_backup_keep_days }}"
 
 
 # get current directory
@@ -84,7 +84,7 @@ do
 done
 
 # delete backups older than 14 days
-/usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -delete -type f
+/usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -type f -delete
 
 {% if docker_database_backup_ping | length %}
 # ping monitoring

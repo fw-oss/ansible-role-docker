@@ -38,4 +38,4 @@ docker_database_backup_ping: "" # healthchecks.io
 docker_database_backup_mysql_regex: "(?=^((?!zabbix-server).)*$)(mariadb|mysql)"
 docker_database_backup_postgres_regex: "(?=^((?!zammad-backup).)*$)(postgres|mattermost-docker-database)"
 docker_database_backup_mongo_regex: "(mongo[^-])"
-docker_database_backup_keep_regex: "7"
+docker_database_backup_keep_days: "7"
