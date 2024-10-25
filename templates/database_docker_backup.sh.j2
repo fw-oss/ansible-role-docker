@@ -3,6 +3,12 @@
 # be sure, you have `zstd` installed
 # original source: https://gist.github.com/tldev-de/28a3ca2f2ba7026ecdbb83ceb75d112d
 
+{% if docker_database_backup_ping | length %}
+# ping monitoring
+curl -fsS -m 10 --retry 5 -o  /dev/null {{ docker_database_backup_ping }}/start
+declare -i SUM_OF_EXIT_CODES=0
+declare -i SUM_OF_BACKUPS=0
+{% endif %}
 
 #####################################
 ############## config ###############
@@ -11,11 +17,12 @@
 MYSQL_REGEX="{{ docker_database_backup_mysql_regex }}"
 POSTGRES_REGEX="{{ docker_database_backup_postgres_regex }}"
 MONGO_REGEX="{{ docker_database_backup_mongo_regex }}"
-KEEP_DAYS="{{ docker_database_backup_keep_regex }}"
+KEEP_DAYS="{{ docker_database_backup_keep_days }}"
 
 
 # get current directory
 CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 
 #####################################
 ########## mariadb / mysql ##########
@@ -29,7 +36,11 @@ do
   printf "new container: $i\n"
   BACKUP_FOLDER=$CURRENT_DIR/backups/$i
   mkdir -p $BACKUP_FOLDER
-  docker exec $i sh -c 'mysqldump --all-databases --single-transaction -uroot -p"$MYSQL_ROOT_PASSWORD"' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst
+  docker exec $i sh -c 'mysqldump --all-databases --single-transaction -uroot -p"${MYSQL_ROOT_PASSWORD}${MARIADB_ROOT_PASSWORD}"' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst
+{% if docker_database_backup_ping | length %}
+  SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
+  SUM_OF_BACKUPS+=1
+{% endif %}
 done
 
 
@@ -46,6 +57,10 @@ do
   BACKUP_FOLDER=$CURRENT_DIR/backups/$i
   mkdir -p $BACKUP_FOLDER
   docker exec $i sh -c 'pg_dumpall -U "$POSTGRES_USER"' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst
+{% if docker_database_backup_ping | length %}
+  SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
+  SUM_OF_BACKUPS+=1
+{% endif %}
 done
 
 
@@ -62,7 +77,17 @@ do
   BACKUP_FOLDER=$CURRENT_DIR/backups/$i
   mkdir -p $BACKUP_FOLDER
   docker exec $i sh -c 'mongodump -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --archive' | zstd > $BACKUP_FOLDER/$(date +%Y%m%d-%H%M).archive.zst
+{% if docker_database_backup_ping | length %}
+  SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
+  SUM_OF_BACKUPS+=1
+{% endif %}
 done
 
 # delete backups older than 14 days
-/usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -delete -type f
+/usr/bin/find $CURRENT_DIR/backups/ -mtime +$KEEP_DAYS -type f -delete
+
+{% if docker_database_backup_ping | length %}
+# ping monitoring
+ping_body="${SUM_OF_BACKUPS} backups started:"$'\n'"$(tail --bytes=1000 $CURRENT_DIR/last_run.txt)"
+curl -fsS -m 10 --retry 5 -o /dev/null --data-raw "$ping_body" {{ docker_database_backup_ping }}/${SUM_OF_EXIT_CODES}
+{% endif %}
