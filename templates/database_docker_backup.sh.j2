@@ -88,6 +88,6 @@ done
 
 {% if docker_database_backup_ping | length %}
 # ping monitoring
-ping_body="[${SUM_OF_BACKUPS}x] $(tail -n 4 {{ docker_database_backup_path }}/last_run.txt)"
+ping_body="${SUM_OF_BACKUPS} backups started:"$'\n'"$(tail -n 4 $CURRENT_DIR/last_run.txt)"
 curl -fsS -m 10 --retry 5 -o /dev/null --data-raw "$ping_body" {{ docker_database_backup_ping }}/${SUM_OF_EXIT_CODES}
 {% endif %}
