@@ -45,17 +45,19 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
-  when: not ansible_check_mode
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Install docker-buildx-plugin
   ansible.builtin.apt:
     name: docker-buildx-plugin
-  when: docker_install_buildx_plugin | bool and not ansible_check_mode
+  when: docker_install_buildx_plugin | bool
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Install docker-compose-plugin
   ansible.builtin.apt:
     name: docker-compose-plugin
-  when: docker_install_compose_plugin | bool and not ansible_check_mode
+  when: docker_install_compose_plugin | bool
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create /etc/docker directory with parent directories
   ansible.builtin.file:
@@ -79,7 +81,7 @@
     name: docker
     state: started
     enabled: true
-  when: not ansible_check_mode
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Login into private registry
   ansible.builtin.include_tasks: docker-login.yml
