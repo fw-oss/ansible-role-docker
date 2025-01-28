@@ -37,7 +37,7 @@ CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # get containers running mysql or older mariadb images
 CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
-  grep -Ei ${MYSQL_INCLUDE_REGEX} | grep -Eiv ${MYSQL_EXCLUDE_REGEX} | awk '{print $2}')
+  grep -Ei "${MYSQL_INCLUDE_REGEX}" | grep -Eiv "${MYSQL_EXCLUDE_REGEX}" | awk '{print $2}')
 
 for i in ${CONTAINERS}
 do
@@ -58,7 +58,7 @@ done
 
 # get containers running mariadb images
 CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
-  grep -Ei ${MARIA_INCLUDE_REGEX} | grep -Eiv ${MARIA_EXCLUDE_REGEX} | awk '{print $2}')
+  grep -Ei "${MARIA_INCLUDE_REGEX}" | grep -Eiv "${MARIA_EXCLUDE_REGEX}" | awk '{print $2}')
 
 for i in ${CONTAINERS}
 do
@@ -79,7 +79,7 @@ done
 
 # get containers running postgres images
 CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
-  grep -Ei ${POSTGRES_INCLUDE_REGEX} | grep -Eiv ${POSTGRES_EXCLUDE_REGEX} | awk '{print $2}')
+  grep -Ei "${POSTGRES_INCLUDE_REGEX}" | grep -Eiv "${POSTGRES_EXCLUDE_REGEX}" | awk '{print $2}')
 
 for i in ${CONTAINERS}
 do
@@ -100,7 +100,7 @@ done
 
 # get containers running mongo images
 CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
-  grep -Ei ${MONGO_INCLUDE_REGEX} | grep -Eiv ${MONGO_EXCLUDE_REGEX} | awk '{print $2}')
+  grep -Ei "${MONGO_INCLUDE_REGEX}" | grep -Eiv "${MONGO_EXCLUDE_REGEX}" | awk '{print $2}')
 
 for i in ${CONTAINERS}
 do
