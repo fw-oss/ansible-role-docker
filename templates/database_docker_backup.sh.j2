@@ -15,10 +15,12 @@ declare -i SUM_OF_BACKUPS=0
 #####################################
 
 MYSQL_INCLUDE_REGEX="{{ docker_database_backup_mysql_include}}"
+MARIA_INCLUDE_REGEX="{{ docker_database_backup_maria_include}}"
 POSTGRES_INCLUDE_REGEX="{{ docker_database_backup_postgres_include }}"
 MONGO_INCLUDE_REGEX="{{ docker_database_backup_mongo_include }}"
 
 MYSQL_EXCLUDE_REGEX="{{ docker_database_backup_mysql_exclude }}"
+MARIA_EXCLUDE_REGEX="{{ docker_database_backup_maria_exclude}}"
 POSTGRES_EXCLUDE_REGEX="{{ docker_database_backup_postgres_exclude }}"
 MONGO_EXCLUDE_REGEX="{{ docker_database_backup_mongo_exclude }}"
 
@@ -33,7 +35,7 @@ CURRENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ########## mariadb / mysql ##########
 #####################################
 
-# get containers running mysql or mariadb images
+# get containers running mysql or older mariadb images
 CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
   grep -Ei ${MYSQL_INCLUDE_REGEX} | grep -Eiv ${MYSQL_EXCLUDE_REGEX} | awk '{print $2}')
 
@@ -50,6 +52,26 @@ do
 {% endif %}
 done
 
+#####################################
+########## mariadb ##################
+#####################################
+
+# get containers running mariadb images
+CONTAINERS=$(docker ps --format "{{ '{{.Image}}' }}\t{{ '{{.Names}}' }}" | \
+  grep -Ei ${MARIA_INCLUDE_REGEX} | grep -Eiv ${MARIA_EXCLUDE_REGEX} | awk '{print $2}')
+
+for i in ${CONTAINERS}
+do
+  printf 'new container: %s\n' "$i"
+  BACKUP_FOLDER=${CURRENT_DIR}/backups/$i
+  mkdir -p "${BACKUP_FOLDER}"
+  docker exec "$i" sh -c 'mariadb-dump --all-databases --single-transaction -uroot -p"${MARIADB_ROOT_PASSWORD}"'\
+    | zstd > "${BACKUP_FOLDER}/$(date +%Y%m%d-%H%M).sql.zst"
+{% if docker_database_backup_ping | length %}
+  SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
+  SUM_OF_BACKUPS+=1
+{% endif %}
+done
 
 #####################################
 ############## postgres #############

@@ -38,8 +38,10 @@ docker_database_backup_ping: ""  # healthchecks.io
 # docker_database_backup_mysql_regex: "(mariadb|mysql)"
 # docker_database_backup_postgres_regex: "(postgres|mattermost-docker-database).*(?<!zammad-backup_1)$"
 # docker_database_backup_mongo_regex: "(mongo[^-])"
-docker_database_backup_mysql_include: "(mariadb|mysql)"
-docker_database_backup_mysql_exclude: "^zabbix"
+docker_database_backup_mysql_include: "(mariadb|mysql)"  # mariadb < 10.5 uses mysqldump
+docker_database_backup_mysql_exclude: "(^zabbix|mariadb:1[1-9])"
+docker_database_backup_maria_include: "mariadb:1[1-9]"
+docker_database_backup_maria_exclude: "NothingToExcludeHereYet"
 docker_database_backup_postgres_include: "(postgres|mattermost-docker-database)"
 docker_database_backup_postgres_exclude: "zammad-backup"
 docker_database_backup_mongo_include: "(mongo)"
