@@ -33,11 +33,8 @@ docker_database_backup_cron_name: "run docker database backup"
 docker_database_backup_cron_file: "docker_database_backup"
 docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
 docker_database_backup_cron_hour: "12,21"
-docker_database_backup_ping: ""  # healthchecks.io
+docker_database_backup_ping: ""
 
-# docker_database_backup_mysql_regex: "(mariadb|mysql)"
-# docker_database_backup_postgres_regex: "(postgres|mattermost-docker-database).*(?<!zammad-backup_1)$"
-# docker_database_backup_mongo_regex: "(mongo[^-])"
 docker_database_backup_mysql_include: "(mariadb|mysql)"  # mariadb < 10.5 uses mysqldump
 docker_database_backup_mysql_exclude: "(^zabbix|mariadb:1[1-9])"
 docker_database_backup_maria_include: "mariadb:1[1-9]"
