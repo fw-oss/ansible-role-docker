@@ -117,7 +117,20 @@ You need to set [some options](https://docs.docker.com/config/daemon/ipv6/) to a
         labels: "{{ ansible_hostname }}"
         tag: "{{ inventory_hostname }}/{%raw%}{{.ImageName}}/{{.Name}}/{{.ID}}{%endraw%}"
   roles:
-    - role: fw-oss.docker
+    - role: fw_oss.docker
+      become: true
+```
+
+```yaml
+---
+- hosts: docker_host_group
+  vars:
+    docker_database_backup_enable: true
+    docker_database_backup_maria_exclude: "testservice"
+    docker_database_backup_keep_days: "3"
+    docker_database_backup_maria_custom_options: "--max-allowed-packet=1073741824"
+  roles:
+    - role: fw_oss.docker
       become: true
 ```
 
