@@ -31,7 +31,6 @@ docker_necessary_packages:
   - zstd
   - mawk
   - curl
-  - software-properties-common
   - python3-docker
 
 #########################
