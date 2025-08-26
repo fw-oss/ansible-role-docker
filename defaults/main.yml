@@ -39,7 +39,7 @@ docker_database_backup_mysql_include: "(mariadb|mysql)"  # mariadb < 10.5 uses m
 docker_database_backup_mysql_exclude: "(^zabbix|mariadb:1[1-9])"
 docker_database_backup_maria_include: "mariadb:1[1-9]"
 docker_database_backup_maria_exclude: "NothingToExcludeHereYet"
-docker_database_backup_postgres_include: "(postgres|mattermost-docker-database)"
+docker_database_backup_postgres_include: "(postgres)"
 docker_database_backup_postgres_exclude: "zammad-backup"
 docker_database_backup_mongo_include: "(mongo)"
 docker_database_backup_mongo_exclude: "NothingToExcludeHereYet"

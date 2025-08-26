@@ -72,6 +72,7 @@
     mode: "0644"
   when: docker_daemon_options.keys() | length > 0
   notify: Restart docker service
+  diff: true
 
 - name: Flush Handlers
   ansible.builtin.meta: flush_handlers
