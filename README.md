@@ -1,4 +1,4 @@
-# ansible-role-docker
+# Ansible Role: Docker
 
 Installs Docker CE on Hosts, configures the deamon and initates a database backup job.
 
@@ -16,7 +16,7 @@ Ansible Version 2.9
 
 You can configure the docker daemon by setting the `docker_daemon_options` variable. The given dict is translated into a json file and placed at `/etc/docker/daemon.json`. You can find further information about the available options in the [docker documentation](https://docs.docker.com/reference/cli/dockerd/#daemon-configuration-file). Additional security best practices can be found in the [OWASP Docker Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html).
 
-### Good practices
+#### Good practices
 
 Here are some good practices for configuring the docker daemon. Be aware, that the list is just an indicative, non-exhaustive list and should be adapted to your needs.
 - `bip: "10.50.0.1/16"`: Set the bridge IPv4 subnet, choose any unused from `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`. See the sample below.
@@ -26,7 +26,7 @@ Here are some good practices for configuring the docker daemon. Be aware, that t
 - `userns-remap: default`: Enable [user namespace remapping](https://docs.docker.com/engine/security/userns-remap/#enable-userns-remap-on-the-daemon) to ensure that containers don't run as root on the host. **Be careful since a change in this setting will cause all existing containers to be removed!**
 - `log-level: info`: Set the [log level](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html#rule-10-keep-the-docker-daemon-logging-level-at-info) to info.
 
-### IPv6 Configuration
+#### IPv6 Configuration
 
 You need to set [some options](https://docs.docker.com/config/daemon/ipv6/) to allow the usage of IPv6:
 - `experimental: true`: Enable experimental features - this is required to use IPv6 for the time being.
@@ -41,7 +41,7 @@ You need to set [some options](https://docs.docker.com/config/daemon/ipv6/) to a
 There is an optional bash script that will do a regular database dump of any container that sounds like a database triggered by cron.  
 Enable it by setting `docker_database_backup_enable: true`  
 It requires the root passwords to be env variables of said containers (e.g. `MYSQL_ROOT_PASSWORD`).  
-In its default config the script runs at 12:xx and 21:xx and keep dumps for 7 days.  
+In its default config the script runs at 12:xx and 21:xx and keeps dumps for 7 days.  
 
 #### Managing which containers are dumped
 
@@ -166,14 +166,28 @@ docker_logins: []
 ############################
 
 docker_database_backup_enable: false
+# Where to store the script and backups:
 docker_database_backup_path: "/opt/docker-database-backup"
 docker_database_backup_cron_name: "run docker database backup"
+# When to run
 docker_database_backup_cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
 docker_database_backup_cron_hour: "12,21"
-docker_database_backup_mysql_regex: "(mariadb|mysql)"  # TODO
-docker_database_backup_postgres_regex: "(postgres|mattermost-docker-database).*(?<!zammad-backup_1)$"
-docker_database_backup_mongo_regex: "(mongo[^-])"
+# Manage which container are picked up based on their name or image name
+docker_database_backup_mysql_include: "(mariadb|mysql)"  # mariadb < 10.5 uses mysqldump
+docker_database_backup_mysql_exclude: "(^zabbix|mariadb:1[1-9])"
+docker_database_backup_maria_include: "mariadb:1[1-9]"
+docker_database_backup_maria_exclude: "NothingToExcludeHereYet"
+docker_database_backup_postgres_include: "(postgres|pg-gvm)"
+docker_database_backup_postgres_exclude: "zammad-backup"
+docker_database_backup_mongo_include: "(mongo)"
+docker_database_backup_mongo_exclude: "NothingToExcludeHereYet"
+# Delete dumps after:
 docker_database_backup_keep_days: "7"
+# If you need to tweak settings (see example):
+docker_database_backup_mysql_custom_options: ""
+docker_database_backup_maria_custom_options: ""
+docker_database_backup_postgres_custom_options: ""
+docker_database_backup_mongo_custom_options: ""
 ```
 
 
