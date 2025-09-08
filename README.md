@@ -142,14 +142,12 @@ docker_obsolete_packages:
   - containerd
 
 docker_necessary_packages:
-  - apt-transport-https
   - ca-certificates
   - gnupg2
   - grep
   - zstd
   - mawk
   - curl
-  - software-properties-common
   - python3-docker
 
 #########################
@@ -197,4 +195,4 @@ MIT
 
 ## Author Information
 
-FW-OSS, 2024
+FW OSS, 2025

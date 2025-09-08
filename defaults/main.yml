@@ -11,7 +11,6 @@ docker_obsolete_packages:
   - containerd
 
 docker_necessary_packages:
-  - apt-transport-https
   - ca-certificates
   - gnupg2
   - grep
