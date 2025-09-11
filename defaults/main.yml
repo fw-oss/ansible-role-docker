@@ -11,14 +11,12 @@ docker_obsolete_packages:
   - containerd
 
 docker_necessary_packages:
-  - apt-transport-https
   - ca-certificates
   - gnupg2
   - grep
   - zstd
   - mawk
   - curl
-  - software-properties-common
   - python3-docker
 
 docker_install_buildx_plugin: true
