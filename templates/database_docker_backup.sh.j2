@@ -3,7 +3,7 @@
 # be sure, you have `zstd` installed
 # original source: https://gist.github.com/tldev-de/28a3ca2f2ba7026ecdbb83ceb75d112d
 
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
 # ping monitoring
 curl -fsS -m 10 --retry 5 -o  /dev/null {{ docker_database_backup_ping }}/start
 declare -i SUM_OF_EXIT_CODES=0
@@ -47,7 +47,7 @@ do
   docker exec "$i" sh -c 'mysqldump --all-databases --single-transaction {{ docker_database_backup_mysql_custom_options
     }} -uroot -p"${MYSQL_ROOT_PASSWORD}${MARIADB_ROOT_PASSWORD}"'\
     | zstd > "${BACKUP_FOLDER}/$(date +%Y%m%d-%H%M).sql.zst"
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
   SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
   SUM_OF_BACKUPS+=1
 {% endif %}
@@ -69,7 +69,7 @@ do
   docker exec "$i" sh -c 'mariadb-dump --all-databases --single-transaction {{ docker_database_backup_maria_custom_options
     }} -uroot -p"${MARIADB_ROOT_PASSWORD}"'\
     | zstd > "${BACKUP_FOLDER}/$(date +%Y%m%d-%H%M).sql.zst"
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
   SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
   SUM_OF_BACKUPS+=1
 {% endif %}
@@ -90,7 +90,7 @@ do
   mkdir -p "${BACKUP_FOLDER}"
   docker exec "$i" sh -c 'pg_dumpall {{ docker_database_backup_postgres_custom_options
     }} -U "$POSTGRES_USER"' | zstd > "$BACKUP_FOLDER/$(date +%Y%m%d-%H%M).sql.zst"
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
   SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
   SUM_OF_BACKUPS+=1
 {% endif %}
@@ -113,7 +113,7 @@ do
   docker exec "$i" sh -c 'mongodump -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --archive --quiet {{
     docker_database_backup_mongo_custom_options }}' | \
     zstd > "${BACKUP_FOLDER}/$(date +%Y%m%d-%H%M).archive.zst"
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
   SUM_OF_EXIT_CODES+=${PIPESTATUS[0]}
   SUM_OF_BACKUPS+=1
 {% endif %}
@@ -122,7 +122,7 @@ done
 # delete backups older than 14 days
 /usr/bin/find "${CURRENT_DIR}/backups/" -mtime +${KEEP_DAYS} -type f -delete
 
-{% if docker_database_backup_ping | length %}
+{% if docker_database_backup_ping | length > 0 %}
 # ping monitoring
 ping_body="${SUM_OF_BACKUPS} backups started:"$'\n'$(tail --bytes=1000 "${CURRENT_DIR}/last_run.txt")
 curl -fsS -m 10 --retry 5 -o /dev/null --data-raw "${ping_body}" \
